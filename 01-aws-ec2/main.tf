@@ -2,7 +2,6 @@
 # VARIABLES
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
-variable "key_name" { }
 
 
 # Configure the AWS Provider
@@ -55,7 +54,6 @@ resource "aws_security_group" "nginx-sg" {
 resource "aws_instance" "nginx" {
   ami                    = "ami-03e0b06f01d45a4eb"
   instance_type          = "t2.micro"
-  # key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
   tags = {
     Name = "web-server"
