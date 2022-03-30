@@ -10,6 +10,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
+      version = "~> 3.0"
     }
   }
 }
@@ -31,12 +32,12 @@ resource "aws_security_group" "nginx-sg" {
   description = "Allow ports for nginx demo"
   vpc_id      = aws_default_vpc.default.id
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # ingress {
+  #   from_port   = 22
+  #   to_port     = 22
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
   ingress {
     from_port   = 80
     to_port     = 80
@@ -52,21 +53,18 @@ resource "aws_security_group" "nginx-sg" {
 }
 
 resource "aws_instance" "nginx" {
-  ami                    = "ami-005e54dee72cc1d00"
+  ami                    = "ami-03e0b06f01d45a4eb"
   instance_type          = "t2.micro"
-  key_name               = var.key_name
+  # key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
   tags = {
     Name = "web-server"
   }
   user_data = <<-EOF
                #! bin/bash
+               sudo amazon-linux-extras install epel -y
+               sudo yum update
                sudo yum install nginx -y
                sudo service nginx start
                EOF
-}
-
-# OUTPUT
-output "aws_instance_public_dns" {
-  value = aws_instance.nginx.public_dns
 }

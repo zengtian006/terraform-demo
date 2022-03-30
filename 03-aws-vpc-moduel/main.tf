@@ -2,15 +2,13 @@
 # VARIABLES
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
-variable "key_name" {}
-
 
 # Configure the AWS Provider
-
 terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
+      version = "~> 3.0"
     }
   }
 }
@@ -42,12 +40,6 @@ data "aws_ami" "aws-linux" {
   }
 }
 
-
-# RESOURCES
-#This uses the default VPC.  It WILL NOT delete it on destroy.
-# resource "aws_default_vpc" "default" {
-
-# }
 
 # NETWORKING #
 module "vpc" {
@@ -97,12 +89,6 @@ resource "aws_security_group" "nginx-sg" {
   vpc_id      = module.vpc.vpc_id
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -135,7 +121,6 @@ resource "aws_elb" "web" {
 resource "aws_instance" "nginx1" {
   ami                    = data.aws_ami.aws-linux.id
   instance_type          = "t2.micro"
-  key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
   subnet_id              = module.vpc.public_subnets[0]
   tags = {
@@ -143,6 +128,8 @@ resource "aws_instance" "nginx1" {
   }
   user_data = <<-EOF
                #! bin/bash
+               sudo amazon-linux-extras install epel -y
+               sudo yum update
                sudo yum install nginx -y
                sudo service nginx start
                sudo rm /usr/share/nginx/html/index.html
@@ -153,7 +140,6 @@ resource "aws_instance" "nginx1" {
 resource "aws_instance" "nginx2" {
   ami                    = data.aws_ami.aws-linux.id
   instance_type          = "t2.micro"
-  key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
   subnet_id              = module.vpc.public_subnets[1]
   tags = {
@@ -161,14 +147,11 @@ resource "aws_instance" "nginx2" {
   }
   user_data = <<-EOF
                #! bin/bash
+               sudo amazon-linux-extras install epel -y
+               sudo yum update
                sudo yum install nginx -y
                sudo service nginx start
                sudo rm /usr/share/nginx/html/index.html
                echo '<html><head><title>Green Team Server</title></head><body style="background-color:#77A032"><p style="text-align: center;"><span style="color:#FFFFFF;"><span style="font-size:28px;">Green Team</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
                EOF
-}
-# OUTPUT
-
-output "aws_instance_public_dns" {
-  value = aws_elb.web.dns_name
 }
