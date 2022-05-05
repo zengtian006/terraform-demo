@@ -5,7 +5,6 @@ variable "aws_secret_key" {}
 
 
 # Configure the AWS Provider
-
 terraform {
   required_providers {
     aws = {
@@ -42,56 +41,48 @@ data "aws_ami" "aws-linux" {
   }
 }
 
-
-# NETWORKING #
-resource "aws_vpc" "vpc" {
-  cidr_block           = "10.1.0.0/16"
-  enable_dns_hostnames = "true"
-
-}
-
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.vpc.id
+# RESOURCES
+#This uses the default VPC.  It WILL NOT delete it on destroy.
+resource "aws_default_vpc" "default" {
 
 }
 
 resource "aws_subnet" "subnet1" {
-  cidr_block              = "10.1.0.0/24"
-  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = "172.31.128.0/24"
+  vpc_id                  = aws_default_vpc.default.id
   map_public_ip_on_launch = "true"
   availability_zone       = "us-east-1a"
 }
 
 resource "aws_subnet" "subnet2" {
-  cidr_block              = "10.1.1.0/24"
-  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = "172.31.255.0/24"
+  vpc_id                  = aws_default_vpc.default.id
   map_public_ip_on_launch = "true"
   availability_zone       = "us-east-1b"
 }
 
-# ROUTING #
-resource "aws_route_table" "rtb" {
-  vpc_id = aws_vpc.vpc.id
+resource "aws_security_group" "nginx-sg" {
+  name        = "nginx_demo"
+  description = "Allow ports for nginx demo"
+  vpc_id      = aws_default_vpc.default.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
-resource "aws_route_table_association" "rta-subnet1" {
-  subnet_id      = aws_subnet.subnet1.id
-  route_table_id = aws_route_table.rtb.id
-}
-resource "aws_route_table_association" "rta-subnet2" {
-  subnet_id      = aws_subnet.subnet2.id
-  route_table_id = aws_route_table.rtb.id
-}
-
-# SECURITY GROUPS #
 resource "aws_security_group" "elb-sg" {
   name   = "nginx_elb_sg"
-  vpc_id = aws_vpc.vpc.id
+  vpc_id = aws_default_vpc.default.id
 
   #Allow HTTP from anywhere
   ingress {
@@ -110,32 +101,12 @@ resource "aws_security_group" "elb-sg" {
   }
 }
 
-resource "aws_security_group" "nginx-sg" {
-  name        = "nginx_demo"
-  description = "Allow ports for nginx demo"
-  vpc_id      = aws_vpc.vpc.id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = -1
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# LOAD BALANCER #
 resource "aws_elb" "web" {
   name = "nginx-elb"
 
   subnets         = [aws_subnet.subnet1.id, aws_subnet.subnet2.id]
   security_groups = [aws_security_group.elb-sg.id]
-  instances       = [aws_instance.nginx1.id, aws_instance.nginx2.id]
+  instances       = [aws_instance.blue.id, aws_instance.green.id]
 
   listener {
     instance_port     = 80
@@ -145,13 +116,13 @@ resource "aws_elb" "web" {
   }
 }
 
-resource "aws_instance" "nginx1" {
+resource "aws_instance" "blue" {
   ami                    = data.aws_ami.aws-linux.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
   subnet_id              = aws_subnet.subnet1.id
   tags = {
-    Name = "nginx1"
+    Name = "Blue team"
   }
   user_data = <<-EOF
                #! bin/bash
@@ -164,13 +135,13 @@ resource "aws_instance" "nginx1" {
                EOF
 }
 
-resource "aws_instance" "nginx2" {
+resource "aws_instance" "green" {
   ami                    = data.aws_ami.aws-linux.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
   subnet_id              = aws_subnet.subnet2.id
   tags = {
-    Name = "nginx2"
+    Name = "Green team"
   }
   user_data = <<-EOF
                #! bin/bash
