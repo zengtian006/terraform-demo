@@ -132,6 +132,6 @@ resource "aws_instance" "green" {
                sudo yum install nginx -y
                sudo service nginx start
                sudo rm /usr/share/nginx/html/index.html
-               echo '<html><head><title>Blue Team Server</title></head><body style="background-color:#77A032"><p style="text-align: center;"><span style="color:#FFFFFF;"><span style="font-size:28px;">Green Team</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
+               echo '<html><head><title>Green Team Server</title></head><body style="background-color:#77A032"><p style="text-align: center;"><span style="color:#FFFFFF;"><span style="font-size:28px;">Green Team</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
                EOF
 }
