@@ -20,12 +20,13 @@ provider "aws" {
   secret_key = var.aws_secret_key
 }
 
-# RESOURCES
+# NETWORK
 #This uses the default VPC.  It WILL NOT delete it on destroy.
 resource "aws_default_vpc" "default" {
 
 }
 
+# RESOURCES
 resource "aws_security_group" "nginx-sg" {
   name        = "nginx_demo"
   description = "Allow ports for nginx demo"
@@ -46,7 +47,7 @@ resource "aws_security_group" "nginx-sg" {
 }
 
 resource "aws_instance" "nginx" {
-  ami                    = "ami-03e0b06f01d45a4eb"
+  ami                    = "ami-06eecef118bbf9259"
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
   tags = {

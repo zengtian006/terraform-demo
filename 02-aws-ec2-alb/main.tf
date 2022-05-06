@@ -20,10 +20,10 @@ provider "aws" {
   secret_key = var.aws_secret_key
 }
 
-# DATA
+# DATA SOURCE
 data "aws_ami" "aws-linux" {
-  most_recent = true
-  owners      = ["amazon"]
+  most_recent      = true
+  owners           = ["amazon"]
 
   filter {
     name   = "name"
@@ -41,26 +41,27 @@ data "aws_ami" "aws-linux" {
   }
 }
 
-# RESOURCES
-#This uses the default VPC.  It WILL NOT delete it on destroy.
+# NETWORK
+# This uses the default VPC.  It WILL NOT delete it on destroy.
 resource "aws_default_vpc" "default" {
 
 }
 
 resource "aws_subnet" "subnet1" {
-  cidr_block              = "172.31.128.0/24"
-  vpc_id                  = aws_default_vpc.default.id
-  map_public_ip_on_launch = "true"
+  vpc_id     = aws_default_vpc.default.id
+  cidr_block = "172.31.128.0/24" 
   availability_zone       = "us-east-1a"
+  map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "subnet2" {
-  cidr_block              = "172.31.255.0/24"
-  vpc_id                  = aws_default_vpc.default.id
-  map_public_ip_on_launch = "true"
+  vpc_id     = aws_default_vpc.default.id
+  cidr_block = "172.31.255.0/24" 
   availability_zone       = "us-east-1b"
+  map_public_ip_on_launch = true
 }
 
+# RESOURCES
 resource "aws_security_group" "nginx-sg" {
   name        = "nginx_demo"
   description = "Allow ports for nginx demo"
@@ -80,33 +81,14 @@ resource "aws_security_group" "nginx-sg" {
   }
 }
 
-resource "aws_security_group" "elb-sg" {
-  name   = "nginx_elb_sg"
-  vpc_id = aws_default_vpc.default.id
-
-  #Allow HTTP from anywhere
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  #allow all outbound
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
+#ELB
+# Create a new load balancer
 resource "aws_elb" "web" {
-  name = "nginx-elb"
+  name               = "nginx-elb"
 
-  subnets         = [aws_subnet.subnet1.id, aws_subnet.subnet2.id]
-  security_groups = [aws_security_group.elb-sg.id]
-  instances       = [aws_instance.blue.id, aws_instance.green.id]
+  subnets = [aws_subnet.subnet1.id, aws_subnet.subnet2.id]
+  security_groups = [aws_security_group.nginx-sg.id]
+  instances = [aws_instance.blue.id, aws_instance.green.id]
 
   listener {
     instance_port     = 80
@@ -120,7 +102,7 @@ resource "aws_instance" "blue" {
   ami                    = data.aws_ami.aws-linux.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
-  subnet_id              = aws_subnet.subnet1.id
+  subnet_id = aws_subnet.subnet1.id
   tags = {
     Name = "Blue team"
   }
@@ -139,7 +121,7 @@ resource "aws_instance" "green" {
   ami                    = data.aws_ami.aws-linux.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
-  subnet_id              = aws_subnet.subnet2.id
+  subnet_id = aws_subnet.subnet2.id
   tags = {
     Name = "Green team"
   }
@@ -150,6 +132,6 @@ resource "aws_instance" "green" {
                sudo yum install nginx -y
                sudo service nginx start
                sudo rm /usr/share/nginx/html/index.html
-               echo '<html><head><title>Green Team Server</title></head><body style="background-color:#77A032"><p style="text-align: center;"><span style="color:#FFFFFF;"><span style="font-size:28px;">Green Team</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
+               echo '<html><head><title>Blue Team Server</title></head><body style="background-color:#77A032"><p style="text-align: center;"><span style="color:#FFFFFF;"><span style="font-size:28px;">Green Team</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
                EOF
 }
