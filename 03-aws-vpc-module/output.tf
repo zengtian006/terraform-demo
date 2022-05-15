@@ -1,4 +1,4 @@
 # OUTPUT
-output "aws_instance_public_dns" {
-  value = aws_elb.web.dns_name
+output "aws_elb_dns" {
+  value = module.webapp_module.aws_elb_dns
 }
