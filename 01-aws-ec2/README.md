@@ -15,9 +15,9 @@ https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-a
 
 ## Step 2: Build the infrastructure
 
-### Add AWS provider module and provider congifuration
+### a. Create `main.tf` under root folder
 
-Reference: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+### b. Add AWS provider module and provider congifuration
 
 ```terraform
 # Configure the AWS Provider
@@ -36,4 +36,24 @@ provider "aws" {
   secret_key = var.aws_secret_key
 }
 ```
+Reference: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
 
+### b. Define the variables
+
+#### 2. Add Variable in `main.tf`
+
+```terraform
+# VARIABLES
+variable "aws_access_key" {}
+variable "aws_secret_key" {}
+```
+
+#### 3. Create `terraform.tfvars` under root folder
+
+```terraform
+aws_access_key = "<Replace with yours>"
+aws_secret_key = "<Replace with yours>"
+```
+
+How to get your access key ID and secret access key:
+https://docs.aws.amazon.com/powershell/latest/userguide/pstools-appendix-sign-up.html
