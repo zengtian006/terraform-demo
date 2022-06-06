@@ -60,7 +60,16 @@ https://docs.aws.amazon.com/powershell/latest/userguide/pstools-appendix-sign-up
 
 ### c. Add AWS services
 
-#### 1. Add security group 
+#### 1. Add VPC module
+
+```terraform
+#This uses the default VPC.  It WILL NOT delete it on destroy.
+resource "aws_default_vpc" "default" {
+
+}
+```
+
+#### 2. Add security group 
 
 ```terraform
 # To allow http request to EC2 instance
@@ -84,7 +93,7 @@ resource "aws_security_group" "nginx-sg" {
 }
 ```
 
-#### 2. Add a EC2 instance
+#### 3. Add a EC2 instance
 
 ```terraform
 resource "aws_instance" "nginx" {
