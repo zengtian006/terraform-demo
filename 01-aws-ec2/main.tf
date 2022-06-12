@@ -1,9 +1,4 @@
 
-# VARIABLES
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
-
-
 # Configure the AWS Provider
 terraform {
   required_providers {
@@ -16,8 +11,8 @@ terraform {
 
 provider "aws" {
   region = "us-east-1"
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
+  access_key = "<Replace with yours>"
+  secret_key = "<Replace with yours>"
 }
 
 # NETWORK
@@ -59,5 +54,7 @@ resource "aws_instance" "nginx" {
                sudo yum update
                sudo yum install nginx -y
                sudo service nginx start
+               sudo rm /usr/share/nginx/html/index.html
+               echo '<html><head><title>Blue Team Server</title></head><body style="background-color:#1F778D"><p style="text-align: center;"><span style="color:#FFFFFF;"><span style="font-size:28px;">Blue Team</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
                EOF
 }

@@ -32,31 +32,26 @@ terraform {
 
 provider "aws" {
   region = "us-east-1"
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
+  access_key = "<Replace with yours>"
+  secret_key = "<Replace with yours>"
 }
 ```
 Reference: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
 
-### b. Define the variables
+### b. AWS Auth configuration
 
-#### 2. Add Variables in `main.tf`
-
-```terraform
-# VARIABLES
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
-```
-
-#### 3. Create `terraform.tfvars` under root folder
-
-```terraform
-aws_access_key = "<Replace with yours>"
-aws_secret_key = "<Replace with yours>"
-```
-
-How to get your access key ID and secret access key:
+#### 1. How to get your access key ID and secret access key:
 https://docs.aws.amazon.com/powershell/latest/userguide/pstools-appendix-sign-up.html
+
+#### 2. Replace with your crediential
+
+```terraform
+provider "aws" {
+  region = "us-east-1"
+  access_key = "<Replace with yours>"
+  secret_key = "<Replace with yours>"
+}
+```
 
 ### c. Add AWS services
 
