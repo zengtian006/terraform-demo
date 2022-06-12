@@ -65,7 +65,7 @@ For more details, please visit https://registry.terraform.io/providers/hashicorp
 ```terraform
 resource "aws_instance" "blue" {
   ami                    = data.aws_ami.aws-linux.id
-  ...
+  ......
 }
 ```
 
