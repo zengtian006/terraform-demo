@@ -4,13 +4,33 @@
 
 ## Step 1: Provision Day 1 Architecture (if you deleted)
 
+`terraform apply --auto-approve`
+
 ## Step 2: Replace hardcoded values with <ins>Variable</ins>
 
-### a. Add Variables in `main.tf`
+### a. Declare Variables in `main.tf`
+
+```terraform
+variable "aws_access_key" {}
+variable "aws_secret_key" {}
+```
 
 ### b. Create `terraform.tfvars` under root folder
 
+```terraform
+aws_access_key = "<Replace with yours>"
+aws_secret_key = "<Replace with yours>"
+```
+
 ### c. Reference the Variable in `aws` Provider
+
+```terraform
+provider "aws" {
+  region = "us-east-1"
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+}
+```
 
 ## Step 3: Fetch AMI ID using <ins>Data Source</ins>
 
@@ -132,7 +152,17 @@ resource "aws_elb" "web" {
 }
 ```
 
-### d. Remove the old EC2
+### f. Modify the `output.tf`
+
+Replace the content with the codes below
+
+```terraform
+output "aws_instance_public_dns" {
+  value = aws_elb.web.dns_name
+}
+```
+
+### e. Remove the old EC2
 
 ```terraform
 resource "aws_instance" "nginx" {
@@ -141,3 +171,12 @@ resource "aws_instance" "nginx" {
   ......
 }
 ```
+
+## Step 5: Provision the infrastructure
+
+### a. `terraform plan`
+### b. `terraform apply`
+
+## Step 6: Validate infrastructure
+
+You can access the DNS Url from the terraform output.
