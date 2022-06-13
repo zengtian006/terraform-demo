@@ -60,7 +60,7 @@ data "aws_ami" "aws-linux" {
 
 For more details, please visit https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami
 
-### b. Reference Data souece in EC2 block
+### b. Reference Data source in EC2 block
 
 ```terraform
 resource "aws_instance" "blue" {
