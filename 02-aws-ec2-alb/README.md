@@ -8,7 +8,7 @@
 
 ## Step 2: Replace hardcoded values with <ins>Variable</ins>
 
-### a. Declare Variables in `main.tf`
+### a. Create `variable.tf` and declare Variables
 
 ```terraform
 variable "aws_access_key" {}
