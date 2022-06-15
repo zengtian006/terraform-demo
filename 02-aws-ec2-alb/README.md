@@ -37,7 +37,7 @@ provider "aws" {
 ### a. Add `aws_ami` Data block
 
 ```terraform
-data "aws_ami" "aws-linux" {
+data "aws_ami" "aws_linux" {
   most_recent      = true
   owners           = ["amazon"]
 
@@ -64,7 +64,7 @@ For more details, please visit https://registry.terraform.io/providers/hashicorp
 
 ```terraform
 resource "aws_instance" "blue" {
-  ami                    = data.aws_ami.aws-linux.id
+  ami                    = data.aws_ami.aws_linux.id
   ......
 }
 ```
@@ -93,7 +93,7 @@ resource "aws_subnet" "subnet2" {
 
 ```terraform
 resource "aws_instance" "blue" {
-  ami                    = data.aws_ami.aws-linux.id
+  ami                    = data.aws_ami.aws_linux.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
   subnet_id = aws_subnet.subnet1.id
@@ -112,7 +112,7 @@ resource "aws_instance" "blue" {
 }
 
 resource "aws_instance" "green" {
-  ami                    = data.aws_ami.aws-linux.id
+  ami                    = data.aws_ami.aws_linux.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
   subnet_id = aws_subnet.subnet2.id
