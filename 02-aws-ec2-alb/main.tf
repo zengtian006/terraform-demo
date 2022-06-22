@@ -1,9 +1,3 @@
-
-# VARIABLES
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
-
-
 # Configure the AWS Provider
 terraform {
   required_providers {
@@ -15,15 +9,15 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region     = "us-east-1"
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
 }
 
 # DATA SOURCE
 data "aws_ami" "aws_linux" {
-  most_recent      = true
-  owners           = ["amazon"]
+  most_recent = true
+  owners      = ["amazon"]
 
   filter {
     name   = "name"
@@ -48,15 +42,15 @@ resource "aws_default_vpc" "default" {
 }
 
 resource "aws_subnet" "subnet1" {
-  vpc_id     = aws_default_vpc.default.id
-  cidr_block = "172.31.128.0/24" 
+  vpc_id                  = aws_default_vpc.default.id
+  cidr_block              = "172.31.128.0/24"
   availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "subnet2" {
-  vpc_id     = aws_default_vpc.default.id
-  cidr_block = "172.31.255.0/24" 
+  vpc_id                  = aws_default_vpc.default.id
+  cidr_block              = "172.31.255.0/24"
   availability_zone       = "us-east-1b"
   map_public_ip_on_launch = true
 }
@@ -84,11 +78,10 @@ resource "aws_security_group" "nginx-sg" {
 #ELB
 # Create a new load balancer
 resource "aws_elb" "web" {
-  name               = "nginx-elb"
-
-  subnets = [aws_subnet.subnet1.id, aws_subnet.subnet2.id]
+  name            = "nginx-elb"
+  subnets         = [aws_subnet.subnet1.id, aws_subnet.subnet2.id]
   security_groups = [aws_security_group.nginx-sg.id]
-  instances = [aws_instance.blue.id, aws_instance.green.id]
+  instances       = [aws_instance.blue.id, aws_instance.green.id]
 
   listener {
     instance_port     = 80
@@ -102,7 +95,7 @@ resource "aws_instance" "blue" {
   ami                    = data.aws_ami.aws_linux.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
-  subnet_id = aws_subnet.subnet1.id
+  subnet_id              = aws_subnet.subnet1.id
   tags = {
     Name = "Blue team"
   }
@@ -121,7 +114,7 @@ resource "aws_instance" "green" {
   ami                    = data.aws_ami.aws_linux.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.nginx-sg.id]
-  subnet_id = aws_subnet.subnet2.id
+  subnet_id              = aws_subnet.subnet2.id
   tags = {
     Name = "Green team"
   }
