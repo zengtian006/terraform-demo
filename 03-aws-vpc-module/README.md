@@ -79,7 +79,7 @@ module "vpc" {
 
 Please refer to [Terraform Module](https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest) for more details
 
-## Step 3: Create our own <ins>Modules</ins> - Package all the things 
+## Step 3: Create our own <ins>Module</ins> - Package all the things 
 
 ### a: Module strcutrue
 
