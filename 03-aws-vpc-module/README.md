@@ -81,7 +81,7 @@ Please refer to [Terraform Module](https://registry.terraform.io/modules/terrafo
 
 ## Step 3: Create our own <ins>Module</ins> - Package all the things 
 
-### a: Module strcutrue
+### a: Module Structure
 
 - `variables.tf` - Variable (input)
 - `outputs.tf` - Output values
