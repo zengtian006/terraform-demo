@@ -1,8 +1,3 @@
-
-# VARIABLES
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
-
 # Configure the AWS Provider
 terraform {
   required_providers {
