@@ -52,22 +52,6 @@ resource "aws_security_group" "nginx-sg" {
   }
 }
 
-# LOAD BALANCER #
-resource "aws_elb" "web" {
-  name = "nginx-elb"
-
-  subnets         = module.vpc.public_subnets
-  security_groups = [aws_security_group.nginx-sg.id]
-  instances       = [aws_instance.blue.id, aws_instance.green.id]
-
-  listener {
-    instance_port     = 80
-    instance_protocol = "http"
-    lb_port           = 80
-    lb_protocol       = "http"
-  }
-}
-
 # EC2 INSTANCES #
 resource "aws_instance" "blue" {
   ami                    = data.aws_ami.aws-linux.id
@@ -105,4 +89,20 @@ resource "aws_instance" "green" {
                sudo rm /usr/share/nginx/html/index.html
                echo '<html><head><title>Green Team Server</title></head><body style="background-color:#77A032"><p style="text-align: center;"><span style="color:#FFFFFF;"><span style="font-size:28px;">Green Team</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
                EOF
+}
+
+# LOAD BALANCER #
+resource "aws_elb" "web" {
+  name = "nginx-elb"
+
+  subnets         = module.vpc.public_subnets
+  security_groups = [aws_security_group.nginx-sg.id]
+  instances       = [aws_instance.blue.id, aws_instance.green.id]
+
+  listener {
+    instance_port     = 80
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
 }

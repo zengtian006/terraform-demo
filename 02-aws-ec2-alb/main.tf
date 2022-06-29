@@ -55,25 +55,7 @@ resource "aws_subnet" "subnet2" {
   map_public_ip_on_launch = true
 }
 
-# RESOURCES
-resource "aws_security_group" "nginx-sg" {
-  name        = "nginx_demo"
-  description = "Allow ports for nginx demo"
-  vpc_id      = aws_default_vpc.default.id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = -1
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
+# RESOURCE
 
 #ELB
 # Create a new load balancer
@@ -127,4 +109,24 @@ resource "aws_instance" "green" {
                sudo rm /usr/share/nginx/html/index.html
                echo '<html><head><title>Green Team Server</title></head><body style="background-color:#77A032"><p style="text-align: center;"><span style="color:#FFFFFF;"><span style="font-size:28px;">Green Team</span></span></p></body></html>' | sudo tee /usr/share/nginx/html/index.html
                EOF
+}
+
+#Security Group
+resource "aws_security_group" "nginx-sg" {
+  name        = "nginx_demo"
+  description = "Allow ports for nginx demo"
+  vpc_id      = aws_default_vpc.default.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
